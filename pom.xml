@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ek.dk</groupId>
-    <artifactId>Oenskeskyen</artifactId>
+    <artifactId>yoga-festival</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Oenskeskyen</name>
     <description>Oenskeskyen</description>
