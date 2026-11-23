@@ -2,6 +2,9 @@ package ek.dk.yogaFestival.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "festival")
 public class Festival {
@@ -15,6 +18,9 @@ public class Festival {
 
     @Column(nullable = false)
     private int year;
+
+    @OneToMany(mappedBy = "festival")
+    private List<FestivalRegistration> registrations = new ArrayList<>();
 
     protected Festival() {}
 
@@ -41,5 +47,9 @@ public class Festival {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public List<FestivalRegistration> getRegistrations() {
+        return registrations;
     }
 }
