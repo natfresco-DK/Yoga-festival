@@ -10,4 +10,9 @@ public class ActivityPageController {
     public String activitiesPage() {
         return "activities";
     }
+
+    @GetMapping("/registration")
+    public String registrationPage() {
+        return "registration";
+    }
 }
