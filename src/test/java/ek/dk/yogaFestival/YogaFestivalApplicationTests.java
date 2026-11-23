@@ -1,4 +1,4 @@
-package ek.dk.oenskeskyen;
+package ek.dk.yogaFestival;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
