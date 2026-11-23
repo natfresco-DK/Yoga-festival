@@ -1,6 +1,7 @@
 package ek.dk.yogaFestival.controller;
 
 import ek.dk.yogaFestival.dto.ParticipantRegistrationRequest;
+import ek.dk.yogaFestival.dto.ParticipantRegistrationResponse;
 import ek.dk.yogaFestival.model.FestivalRegistration;
 import ek.dk.yogaFestival.service.ParticipantRegistrationService;
 import jakarta.validation.Valid;
@@ -18,7 +19,8 @@ public class ParticipantRegistrationController {
     }
 
     @PostMapping("/api/participants/registrations")
-    public FestivalRegistration register(@Valid @RequestBody ParticipantRegistrationRequest request) {
-        return registrationService.register(request);
+    public ParticipantRegistrationResponse register(@Valid @RequestBody ParticipantRegistrationRequest request) {
+        FestivalRegistration registration = registrationService.register(request);
+        return new ParticipantRegistrationResponse(registration.getId());
     }
 }
