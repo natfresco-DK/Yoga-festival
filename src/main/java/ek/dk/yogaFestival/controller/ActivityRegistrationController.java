@@ -20,7 +20,19 @@ public class ActivityRegistrationController {
     }
 
     @PostMapping("/api/activity-registrations")
-    public List<ActivityRegistration> register(@Valid @RequestBody ActivityRegistrationRequest request) {
-        return registrationService.register(request);
+    public List<ActivityRegistrationDto> register(@Valid @RequestBody ActivityRegistrationRequest request) {
+        return registrationService.register(request).stream()
+                .map(registration -> new ActivityRegistrationDto(
+                        registration.getId(),
+                        registration.getActivity().getId(),
+                        registration.getStatus().name()))
+                .toList();
+    }
+
+    public record ActivityRegistrationDto(
+            Long id,
+            Long activityId,
+            String status
+    ) {
     }
 }
