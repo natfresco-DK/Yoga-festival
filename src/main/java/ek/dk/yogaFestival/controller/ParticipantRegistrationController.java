@@ -3,6 +3,7 @@ package ek.dk.yogaFestival.controller;
 import ek.dk.yogaFestival.dto.ParticipantRegistrationRequest;
 import ek.dk.yogaFestival.model.FestivalRegistration;
 import ek.dk.yogaFestival.service.ParticipantRegistrationService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,7 @@ public class ParticipantRegistrationController {
     }
 
     @PostMapping("/api/participants/registrations")
-    public FestivalRegistration register(@RequestBody ParticipantRegistrationRequest request) {
+    public FestivalRegistration register(@Valid @RequestBody ParticipantRegistrationRequest request) {
         return registrationService.register(request);
     }
 }
