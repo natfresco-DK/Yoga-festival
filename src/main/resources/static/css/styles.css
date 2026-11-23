@@ -287,3 +287,51 @@ h1 {
     font-size: 12px;
     font-weight: 700;
 }
+
+.registration-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+
+.registration-layout .message,
+.registration-layout .form-actions {
+    grid-column: 1 / -1;
+}
+
+.field select {
+    width: 100%;
+    border: 1px solid #cbd7ce;
+    border-radius: 8px;
+    padding: 11px 12px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+}
+
+.activity-options {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.activity-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 12px;
+    cursor: pointer;
+}
+
+.activity-option input {
+    margin-top: 4px;
+}
+
+@media (max-width: 700px) {
+    .registration-layout {
+        grid-template-columns: 1fr;
+    }
+}
