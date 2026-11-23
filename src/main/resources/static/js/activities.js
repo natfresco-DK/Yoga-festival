@@ -94,7 +94,7 @@ form.addEventListener("submit", async (event) => {
         startTime: data.get("start"),
         endTime: data.get("end"),
         capacity: Number(data.get("capacity")),
-        festivalId: 1
+        festivalId: 1 //sat som 1 indtil vi laver funktionalitet der styrer festivaller
     };
 
     const response = await fetch("/api/activities", {
