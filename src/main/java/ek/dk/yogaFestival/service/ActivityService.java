@@ -93,5 +93,8 @@ public class ActivityService {
         if (request.festivalId() == null) {
             throw new IllegalArgumentException("Festival ID is required");
         }
+        if (request.room() == null || request.room().isBlank()) {
+            throw new IllegalArgumentException("Room is required");
+        }
     }
 }

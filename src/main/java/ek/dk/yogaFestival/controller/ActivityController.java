@@ -1,6 +1,7 @@
 package ek.dk.yogaFestival.controller;
 
 import ek.dk.yogaFestival.dto.ActivityRequest;
+import ek.dk.yogaFestival.dto.ActivityResponse;
 import ek.dk.yogaFestival.model.Activity;
 import ek.dk.yogaFestival.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,29 @@ public class ActivityController {
         this.activityService = activityService;
     }
 
+    /*
     @GetMapping("/api/activities")
     public List<Activity> getActivities() {
         return activityService.getAllFestivals();
+    }
+
+     */
+
+    @GetMapping("/api/activities")
+    public List<ActivityResponse> getActivities() {
+        return activityService.getAllFestivals().stream()
+                .map(activity -> new ActivityResponse(
+                        activity.getId(),
+                        activity.getName(),
+                        activity.getDescription(),
+                        activity.getInstructor(),
+                        activity.getRoom(),
+                        activity.getStartTime(),
+                        activity.getEndTime(),
+                        activity.getCapacity(),
+                        activity.getItemsToBring(),
+                        activity.getFestival().getId()))
+                .toList();
     }
 
     @PostMapping("/api/activities")

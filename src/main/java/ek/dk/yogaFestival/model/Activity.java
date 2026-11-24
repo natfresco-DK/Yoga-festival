@@ -5,6 +5,8 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "activities")
@@ -35,6 +37,9 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "festival_id", nullable = false)
     private Festival festival;
+
+    @OneToMany(mappedBy = "activity")
+    private List<ActivityRegistration> registrations = new ArrayList<>();
 
     public Activity() {}
 
@@ -129,4 +134,8 @@ public class Activity {
 public void setFestival(Festival festival) {
     this.festival = festival;
 }
+
+    public List<ActivityRegistration> getRegistrations() {
+        return registrations;
+    }
 }
