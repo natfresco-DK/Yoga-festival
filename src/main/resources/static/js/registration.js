@@ -102,7 +102,8 @@ form.addEventListener("submit", async event => {
         });
 
         if (!participantResponse.ok) {
-            throw new Error("Deltageren kunne ikke registreres.");
+            const error = await participantResponse.json().catch(() => null);
+            throw new Error(error?.message ?? "Deltageren kunne ikke registreres.");
         }
 
         const responseText = await participantResponse.text();
