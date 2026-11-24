@@ -14,7 +14,7 @@ function showMessage(text, isError = false) {
 async function loadFestivals() {
     const response = await fetch("/api/festivals");
     if (!response.ok) {
-        throw new Error("Kunne ikke hente festivaler");
+        throw new Error("Could not load festivals");
     }
 
     const festivals = await response.json();
@@ -37,7 +37,7 @@ async function loadActivities() {
 
     const response = await fetch("/api/activities");
     if (!response.ok) {
-        throw new Error("Kunne ikke hente aktiviteter");
+        throw new Error("Could not load activities");
     }
 
     const allActivities = await response.json();
@@ -103,7 +103,7 @@ form.addEventListener("submit", async event => {
 
         if (!participantResponse.ok) {
             const error = await participantResponse.json().catch(() => null);
-            throw new Error(error?.message ?? "Deltageren kunne ikke registreres.");
+            throw new Error(error?.message ?? "Participant could not be registered");
         }
 
         const responseText = await participantResponse.text();
@@ -112,7 +112,7 @@ form.addEventListener("submit", async event => {
         try {
             participantRegistration = JSON.parse(responseText);
         } catch {
-            throw new Error("Serveren returnerede ikke gyldig JSON.");
+            throw new Error("The server did not return valid JSON");
         }
         const activityResponse = await fetch("/api/activity-registrations", {
             method: "POST",
@@ -124,7 +124,7 @@ form.addEventListener("submit", async event => {
         });
 
         if (!activityResponse.ok) {
-            throw new Error("Aktivitetstilmeldingen kunne ikke gemmes.");
+            throw new Error("Activity registrations could not be saved");
         }
 
         showMessage("Deltageren er registreret og tilmeldt valgte aktiviteter.");
