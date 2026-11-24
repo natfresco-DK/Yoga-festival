@@ -104,5 +104,63 @@
         </aside>
     </div>
 </main>
+<dialog id="edit-dialog" class="edit-dialog">
+    <h2>Rediger aktivitet</h2>
+    <form id="edit-form">
+        <div class="field">
+            <label for="edit-name">Titel</label>
+            <input id="edit-name" type="text" required>
+        </div>
+
+        <div class="field">
+            <label for="edit-description">Beskrivelse</label>
+            <textarea id="edit-description" name="description" rows="4" maxlength="1000"
+                      placeholder="Hvad kan deltagerne forvente?"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="edit-instructor">Underviser</label>
+            <input id="edit-instructor" name="instructor" type="text" maxlength="100"
+                   placeholder="Underviserens navn" autocomplete="off" required>
+        </div>
+
+        <div class="field">
+            <label for="edit-room">Lokale</label>
+            <input id="edit-room" name="room" type="text" maxlength="100"
+                   placeholder="F.eks. Sal 1" autocomplete="off" required>
+        </div>
+
+        <div class="field">
+            <label for="edit-itemsToBring">Deltagere skal medbringe</label>
+            <textarea id="edit-itemsToBring" name="itemsToBring" rows="4" maxlength="1000"
+                      placeholder="Hvilke genstande bør deltagerne medbringe?"></textarea>
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label for="edit-start">Starttidspunkt</label>
+                <input id="edit-start" name="start" type="datetime-local" required>
+            </div>
+            <div class="field">
+                <label for="edit-end">Sluttidspunkt</label>
+                <input id="edit-end" name="end" type="datetime-local" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="edit-capacity">Antal pladser</label>
+            <input id="edit-capacity" type="number" min="1" required>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">
+                Gem ændringer
+            </button>
+            <button class="btn btn-secondary" type="button" id="close-dialog">
+                Annuller
+            </button>
+        </div>
+    </form>
+</dialog>
 </body>
 </html>

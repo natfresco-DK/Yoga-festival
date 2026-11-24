@@ -44,6 +44,30 @@ public class ActivityService {
         return activityRepo.save(activity);
     }
 
+    public Activity updateActivity(Long id, ActivityRequest request) {
+        validateActivityRequest(request);
+
+        Activity existingActivity = activityRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Activity with id " + id + " does not exist"));
+
+        Festival festival = festivalService.findById(request.festivalId());
+        if (festival == null) {
+            throw new IllegalArgumentException("Festival with id " + request.festivalId() + " does not exist");
+        }
+
+        existingActivity.setName(request.name());
+        existingActivity.setDescription(request.description());
+        existingActivity.setInstructor(request.instructor());
+        existingActivity.setRoom(request.room());
+        existingActivity.setItemsToBring(request.itemsToBring());
+        existingActivity.setStartTime(request.startTime());
+        existingActivity.setEndTime(request.endTime());
+        existingActivity.setCapacity(request.capacity());
+        existingActivity.setFestival(festival);
+
+        return activityRepo.save(existingActivity);
+    }
+
     private void validateActivityRequest(ActivityRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Activity request is required");
