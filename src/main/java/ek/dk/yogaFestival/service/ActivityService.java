@@ -80,6 +80,14 @@ public class ActivityService {
         return activityRepo.save(existingActivity);
     }
 
+    public int getAvailablePlaces(Activity activity) {
+        long confirmedRegistrations = activityRegistrationRepo.countByActivityIdAndStatus(
+                activity.getId(),
+                RegistrationStatus.CONFIRMED
+        );
+        return (int) (activity.getCapacity() - confirmedRegistrations);
+    }
+
     private void validateActivityRequest(ActivityRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Activity request is required");
