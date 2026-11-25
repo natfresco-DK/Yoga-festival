@@ -47,6 +47,17 @@ public class ActivityRegistrationService {
                     RegistrationStatus.CONFIRMED)) {
                 continue;
             }
+
+            long confirmedRegistrations = activityRegistrationRepo.countByActivityIdAndStatus(
+                    activityId,
+                    RegistrationStatus.CONFIRMED
+            );
+            if (confirmedRegistrations >= activity.getCapacity()) {
+                throw new IllegalArgumentException(
+                        "Activity " + activityId + " is full"
+                );
+            }
+
             registrations.add(activityRegistrationRepo.save(new ActivityRegistration(festivalRegistration, activity)));
         }
         return registrations;
