@@ -15,10 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ParticipantRegistrationServiceTest {
@@ -88,5 +88,33 @@ class ParticipantRegistrationServiceTest {
         assertEquals(festival, registration.getFestival());
         verify(participantRepo).save(any(Participant.class));
         verify(festivalRegistrationRepo).save(any(FestivalRegistration.class));
+    }
+
+    @Test
+    void shouldReuseExistingFestivalRegistrationForParticipant() {
+        Participant participant = mock(Participant.class);
+        Festival festival = mock(Festival.class);
+        FestivalRegistration existingRegistration = mock(FestivalRegistration.class);
+
+        when(participant.getId()).thenReturn(12L);
+        when(festival.getId()).thenReturn(3L);
+        when(participantRepo.findByEmail("anna@example.com"))
+                .thenReturn(Optional.of(participant));
+        when(festivalService.findById(3L)).thenReturn(festival);
+        when(festivalRegistrationRepo.findByParticipant_IdAndFestival_Id(12L, 3L))
+                .thenReturn(Optional.of(existingRegistration));
+
+        FestivalRegistration registration = registrationService.register(
+                new ParticipantRegistrationRequest(
+                        "Anna Hansen",
+                        "anna@example.com",
+                        null,
+                        3L
+                )
+        );
+
+        assertSame(existingRegistration, registration);
+        verify(participantRepo, never()).save(any(Participant.class));
+        verify(festivalRegistrationRepo, never()).save(any(FestivalRegistration.class));
     }
 }

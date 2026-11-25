@@ -48,8 +48,11 @@ public class ActivityRegistrationService {
                 throw new IllegalArgumentException("Activity " + activityId + " does not belong to the registered festival");
             }
 
-            if (activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(festivalRegistration.getId(), activityId,
-                    RegistrationStatus.CONFIRMED)) {
+            if (activityRegistrationRepo.existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+                    festivalRegistration.getParticipant().getId(),
+                    activityId,
+                    RegistrationStatus.CONFIRMED
+            )) {
                 throw new IllegalArgumentException(
                         "Participant is already registered for activity " + activityId
                 );

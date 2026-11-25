@@ -5,6 +5,7 @@ import ek.dk.yogaFestival.model.Activity;
 import ek.dk.yogaFestival.model.ActivityRegistration;
 import ek.dk.yogaFestival.model.Festival;
 import ek.dk.yogaFestival.model.FestivalRegistration;
+import ek.dk.yogaFestival.model.Participant;
 import ek.dk.yogaFestival.model.RegistrationStatus;
 import ek.dk.yogaFestival.repository.ActivityRegistrationRepo;
 import ek.dk.yogaFestival.repository.ActivityRepo;
@@ -47,8 +48,8 @@ class ActivityRegistrationServiceTest {
         when(activityRegistrationRepo.countByActivityIdAndStatus(
                 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(1L);
-        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
-                5L, 10L, RegistrationStatus.CONFIRMED
+        when(activityRegistrationRepo.existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+                15L, 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(false);
         when(activity.getCapacity()).thenReturn(2);
         when(activityRegistrationRepo.save(any(ActivityRegistration.class)))
@@ -72,8 +73,8 @@ class ActivityRegistrationServiceTest {
         when(activityRegistrationRepo.countByActivityIdAndStatus(
                 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(2L);
-        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
-                5L, 10L, RegistrationStatus.CONFIRMED
+        when(activityRegistrationRepo.existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+                15L, 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(false);
         when(activity.getCapacity()).thenReturn(2);
 
@@ -89,13 +90,13 @@ class ActivityRegistrationServiceTest {
     }
 
     @Test
-    void shouldRejectParticipantAlreadyRegisteredForActivity() {
+    void shouldRejectParticipantAlreadyRegisteredThroughAnotherFestivalRegistration() {
         Festival festival = mock(Festival.class);
         FestivalRegistration festivalRegistration = mock(FestivalRegistration.class);
         Activity activity = mock(Activity.class);
         prepareRegistration(festival, festivalRegistration, activity, 5L, 10L);
-        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
-                5L, 10L, RegistrationStatus.CONFIRMED
+        when(activityRegistrationRepo.existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+                15L, 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(true);
 
         IllegalArgumentException exception = assertThrows(
@@ -136,9 +137,11 @@ class ActivityRegistrationServiceTest {
             Long festivalRegistrationId,
             Long activityId
     ) {
-        when(festival.getId()).thenReturn(1L);
-        when(festivalRegistration.getId()).thenReturn(festivalRegistrationId);
-        when(festivalRegistration.getFestival()).thenReturn(festival);
+            when(festival.getId()).thenReturn(1L);
+            when(festivalRegistration.getFestival()).thenReturn(festival);
+        Participant participant = mock(Participant.class);
+        when(festivalRegistration.getParticipant()).thenReturn(participant);
+        when(participant.getId()).thenReturn(15L);
         when(activity.getFestival()).thenReturn(festival);
         when(festivalRegistrationRepo.findById(festivalRegistrationId))
                 .thenReturn(Optional.of(festivalRegistration));
