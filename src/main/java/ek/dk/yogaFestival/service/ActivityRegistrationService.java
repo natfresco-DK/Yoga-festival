@@ -11,7 +11,9 @@ import ek.dk.yogaFestival.repository.FestivalRegistrationRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ActivityRegistrationService {
@@ -45,7 +47,9 @@ public class ActivityRegistrationService {
 
             if (activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(festivalRegistration.getId(), activityId,
                     RegistrationStatus.CONFIRMED)) {
-                continue;
+                throw new IllegalArgumentException(
+                        "Participant is already registered for activity " + activityId
+                );
             }
 
             long confirmedRegistrations = activityRegistrationRepo.countByActivityIdAndStatus(
@@ -74,6 +78,10 @@ public class ActivityRegistrationService {
         }
         if (request.activityIds() == null || request.activityIds().isEmpty()) {
             throw new IllegalArgumentException("At least one activity must be selected");
+        }
+        Set<Long> uniqueActivityIds = new HashSet<>(request.activityIds());
+        if (uniqueActivityIds.size() != request.activityIds().size()) {
+            throw new IllegalArgumentException("Duplicate activity IDs are not allowed");
         }
     }
 }
