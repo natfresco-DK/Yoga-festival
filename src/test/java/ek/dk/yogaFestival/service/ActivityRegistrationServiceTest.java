@@ -42,11 +42,15 @@ class ActivityRegistrationServiceTest {
         Festival festival = mock(Festival.class);
         FestivalRegistration festivalRegistration = mock(FestivalRegistration.class);
         Activity activity = mock(Activity.class);
-        prepareRegistration(festival, festivalRegistration, activity, 5L, 10L, 2);
+        prepareRegistration(festival, festivalRegistration, activity, 5L, 10L);
 
         when(activityRegistrationRepo.countByActivityIdAndStatus(
                 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(1L);
+        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
+                5L, 10L, RegistrationStatus.CONFIRMED
+        )).thenReturn(false);
+        when(activity.getCapacity()).thenReturn(2);
         when(activityRegistrationRepo.save(any(ActivityRegistration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -63,11 +67,15 @@ class ActivityRegistrationServiceTest {
         Festival festival = mock(Festival.class);
         FestivalRegistration festivalRegistration = mock(FestivalRegistration.class);
         Activity activity = mock(Activity.class);
-        prepareRegistration(festival, festivalRegistration, activity, 5L, 10L, 2);
+        prepareRegistration(festival, festivalRegistration, activity, 5L, 10L);
 
         when(activityRegistrationRepo.countByActivityIdAndStatus(
                 10L, RegistrationStatus.CONFIRMED
         )).thenReturn(2L);
+        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
+                5L, 10L, RegistrationStatus.CONFIRMED
+        )).thenReturn(false);
+        when(activity.getCapacity()).thenReturn(2);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -80,24 +88,60 @@ class ActivityRegistrationServiceTest {
         verify(activityRegistrationRepo, never()).save(any(ActivityRegistration.class));
     }
 
+    @Test
+    void shouldRejectParticipantAlreadyRegisteredForActivity() {
+        Festival festival = mock(Festival.class);
+        FestivalRegistration festivalRegistration = mock(FestivalRegistration.class);
+        Activity activity = mock(Activity.class);
+        prepareRegistration(festival, festivalRegistration, activity, 5L, 10L);
+        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
+                5L, 10L, RegistrationStatus.CONFIRMED
+        )).thenReturn(true);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> registrationService.register(
+                        new ActivityRegistrationRequest(5L, java.util.List.of(10L))
+                )
+        );
+
+        assertEquals(
+                "Participant is already registered for activity 10",
+                exception.getMessage()
+        );
+        verify(activityRegistrationRepo, never()).save(any(ActivityRegistration.class));
+    }
+
+    @Test
+    void shouldRejectDuplicateActivityIdsInSameRequest() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> registrationService.register(
+                        new ActivityRegistrationRequest(5L, java.util.List.of(10L, 10L))
+                )
+        );
+
+        assertEquals("Duplicate activity IDs are not allowed", exception.getMessage());
+        verifyNoInteractions(
+                festivalRegistrationRepo,
+                activityRepo,
+                activityRegistrationRepo
+        );
+    }
+
     private void prepareRegistration(
             Festival festival,
             FestivalRegistration festivalRegistration,
             Activity activity,
             Long festivalRegistrationId,
-            Long activityId,
-            int capacity
+            Long activityId
     ) {
         when(festival.getId()).thenReturn(1L);
         when(festivalRegistration.getId()).thenReturn(festivalRegistrationId);
         when(festivalRegistration.getFestival()).thenReturn(festival);
         when(activity.getFestival()).thenReturn(festival);
-        when(activity.getCapacity()).thenReturn(capacity);
         when(festivalRegistrationRepo.findById(festivalRegistrationId))
                 .thenReturn(Optional.of(festivalRegistration));
         when(activityRepo.findById(activityId)).thenReturn(Optional.of(activity));
-        when(activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(
-                festivalRegistrationId, activityId, RegistrationStatus.CONFIRMED
-        )).thenReturn(false);
     }
 }
