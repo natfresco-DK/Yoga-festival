@@ -38,6 +38,9 @@ class ConcurrentActivityRegistrationIntegrationTest {
     private ActivityRegistrationService activityRegistrationService;
 
     @Autowired
+    private ActivityService activityService;
+
+    @Autowired
     private ActivityRegistrationRepo activityRegistrationRepo;
 
     @Autowired
@@ -51,6 +54,34 @@ class ConcurrentActivityRegistrationIntegrationTest {
 
     @Autowired
     private ParticipantRepo participantRepo;
+
+    @Test
+    void confirmedRegistrationReducesAvailablePlacesByOne() {
+        Festival festival = festivalRepo.save(new Festival("Availability Festival", 2026));
+        FestivalRegistration festivalRegistration = createFestivalRegistration(festival, "availability");
+
+        Activity activity = new Activity(
+                null,
+                "Available Yoga",
+                "Availability check",
+                "Instructor",
+                "Room 1",
+                LocalDateTime.of(2026, 6, 1, 9, 0),
+                LocalDateTime.of(2026, 6, 1, 10, 0),
+                2,
+                null
+        );
+        activity.setFestival(festival);
+        activity = activityRepo.save(activity);
+
+        assertEquals(2, activityService.getAvailablePlaces(activity));
+
+        activityRegistrationService.register(
+                new ActivityRegistrationRequest(festivalRegistration.getId(), List.of(activity.getId()))
+        );
+
+        assertEquals(1, activityService.getAvailablePlaces(activity));
+    }
 
     @Test
     void simultaneousRegistrationsCannotOverbookLastPlace() throws Exception {
