@@ -42,7 +42,12 @@ public class ActivityController {
     }
 
     @PostMapping("/api/activities")
-public Activity saveActivity(@RequestBody ActivityRequest request) {
-    return activityService.saveActivity(request);
-}
+    public Activity saveActivity(@RequestBody ActivityRequest request) {
+        return activityService.saveActivity(request);
+    }
+
+    @PutMapping("/api/activities/{id}")
+    public Activity updateActivity(@PathVariable Long id, @RequestBody ActivityRequest request) {
+        return activityService.updateActivity(id, request);
+    }
 }
