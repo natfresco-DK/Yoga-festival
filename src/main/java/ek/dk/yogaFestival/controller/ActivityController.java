@@ -27,18 +27,24 @@ public class ActivityController {
     @GetMapping("/api/activities")
     public List<ActivityResponse> getActivities() {
         return activityService.getAllFestivals().stream()
-                .map(activity -> new ActivityResponse(
-                        activity.getId(),
-                        activity.getName(),
-                        activity.getDescription(),
-                        activity.getInstructor(),
-                        activity.getRoom(),
-                        activity.getStartTime(),
-                        activity.getEndTime(),
-                        activity.getCapacity(),
-                        activity.getItemsToBring(),
-                        activity.getFestival().getId()))
-                .toList();
+                .map(activity -> {
+                    long confirmedRegistrations = activityService.getConfirmedRegistrationCount(activity.getId());
+                    int availablePlaces = (int) (activity.getCapacity() - confirmedRegistrations);
+                    return new ActivityResponse(
+                            activity.getId(),
+                            activity.getName(),
+                            activity.getDescription(),
+                            activity.getInstructor(),
+                            activity.getRoom(),
+                            activity.getStartTime(),
+                            activity.getEndTime(),
+                            activity.getCapacity(),
+                            activity.getItemsToBring(),
+                            activity.getFestival().getId(),
+                            confirmedRegistrations,
+                            availablePlaces
+                    );
+                }).toList();
     }
 
     @PostMapping("/api/activities")

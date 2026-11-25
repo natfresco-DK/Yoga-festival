@@ -15,4 +15,9 @@ public class ActivityPageController {
     public String registrationPage() {
         return "registration";
     }
+
+    @GetMapping("/organizer")
+    public String organizerPage() {
+        return "organizer";
+    }
 }
