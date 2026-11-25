@@ -10,4 +10,9 @@ public interface ActivityRegistrationRepo extends JpaRepository<ActivityRegistra
             Long activityId,
             RegistrationStatus status
     );
+
+    long countByActivityIdAndStatus(
+            Long activityId,
+            RegistrationStatus status
+    );
 }

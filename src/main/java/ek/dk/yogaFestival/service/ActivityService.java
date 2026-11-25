@@ -3,8 +3,11 @@ package ek.dk.yogaFestival.service;
 import ek.dk.yogaFestival.dto.ActivityRequest;
 import ek.dk.yogaFestival.model.Activity;
 import ek.dk.yogaFestival.model.Festival;
+import ek.dk.yogaFestival.model.RegistrationStatus;
+import ek.dk.yogaFestival.repository.ActivityRegistrationRepo;
 import ek.dk.yogaFestival.repository.ActivityRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,10 +15,12 @@ import java.util.List;
 public class ActivityService {
     private final ActivityRepo activityRepo;
     private final FestivalService festivalService;
+    private final ActivityRegistrationRepo activityRegistrationRepo;
 
-    public ActivityService(ActivityRepo activityRepo, FestivalService festivalService) {
+    public ActivityService(ActivityRepo activityRepo, FestivalService festivalService, ActivityRegistrationRepo activityRegistrationRepo) {
         this.activityRepo = activityRepo;
         this.festivalService = festivalService;
+        this.activityRegistrationRepo = activityRegistrationRepo;
     }
 
     public List<Activity> getAllFestivals() {
@@ -44,15 +49,23 @@ public class ActivityService {
         return activityRepo.save(activity);
     }
 
+    @Transactional
     public Activity updateActivity(Long id, ActivityRequest request) {
         validateActivityRequest(request);
 
         Activity existingActivity = activityRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Activity with id " + id + " does not exist"));
 
-        Festival festival = festivalService.findById(request.festivalId());
-        if (festival == null) {
-            throw new IllegalArgumentException("Festival with id " + request.festivalId() + " does not exist");
+        long confirmedRegistrations =
+                activityRegistrationRepo.countByActivityIdAndStatus(
+                        id,
+                        RegistrationStatus.CONFIRMED
+                );
+
+        if (request.capacity() < confirmedRegistrations) {
+            throw new IllegalArgumentException(
+                    "Capacity cannot be lower than the number of confirmed registrations"
+            );
         }
 
         existingActivity.setName(request.name());
@@ -63,7 +76,6 @@ public class ActivityService {
         existingActivity.setStartTime(request.startTime());
         existingActivity.setEndTime(request.endTime());
         existingActivity.setCapacity(request.capacity());
-        existingActivity.setFestival(festival);
 
         return activityRepo.save(existingActivity);
     }

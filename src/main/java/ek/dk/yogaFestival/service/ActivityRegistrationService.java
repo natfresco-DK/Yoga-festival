@@ -52,6 +52,8 @@ public class ActivityRegistrationService {
         return registrations;
     }
 
+
+
     private void validate(ActivityRegistrationRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Activity registration request is required");

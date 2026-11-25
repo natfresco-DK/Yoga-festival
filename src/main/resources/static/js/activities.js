@@ -87,19 +87,20 @@ function renderActivities() {
 
 
         editButton.addEventListener("click", () => {
-            selectedActivity = activity;
+                selectedActivity = activity;
 
-            document.querySelector("#edit-name").value = activity.name;
-            document.querySelector("#edit-description").value = activity.description;
-            document.querySelector("#edit-instructor").value = activity.instructor;
-            document.querySelector("#edit-room").value = activity.room;
-            document.querySelector("#edit-itemsToBring").value = activity.itemsToBring;
-            document.querySelector("#edit-start").value = activity.start;
-            document.querySelector("#edit-end").value = activity.end;
-            document.querySelector("#edit-capacity").value = activity.capacity;
+                document.querySelector("#edit-name").value = activity.name;
+                document.querySelector("#edit-description").value = activity.description;
+                document.querySelector("#edit-instructor").value = activity.instructor;
+                document.querySelector("#edit-room").value = activity.room;
+                document.querySelector("#edit-itemsToBring").value = activity.itemsToBring;
+                document.querySelector("#edit-start").value = activity.start;
+                document.querySelector("#edit-end").value = activity.end;
+                document.querySelector("#edit-capacity").value = activity.capacity;
 
-            editDialog.showModal();
-        });
+                editDialog.showModal();
+            }
+        );
 
         card.appendChild(editButton);
     }
@@ -112,81 +113,84 @@ function showMessage(text, isError = false) {
 }
 
 form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+        event.preventDefault();
 
-    const data = new FormData(form);
+        const data = new FormData(form);
 
-    const activity = {
-        name: data.get("title").trim(),
-        description: data.get("description").trim(),
-        instructor: data.get("instructor").trim(),
-        room: data.get("room").trim(),
-        itemsToBring: data.get("itemsToBring").trim(),
-        startTime: data.get("start"),
-        endTime: data.get("end"),
-        capacity: Number(data.get("capacity")),
-        festivalId: 1 //sat som 1 indtil vi laver funktionalitet der styrer festivaller
-    };
+        const activity = {
+            name: data.get("title").trim(),
+            description: data.get("description").trim(),
+            instructor: data.get("instructor").trim(),
+            room: data.get("room").trim(),
+            itemsToBring: data.get("itemsToBring").trim(),
+            startTime: data.get("start"),
+            endTime: data.get("end"),
+            capacity: Number(data.get("capacity")),
+            festivalId: 1 //sat som 1 indtil vi laver funktionalitet der styrer festivaller
+        };
 
-    const response = await fetch("/api/activities", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(activity)
-    });
+        const response = await fetch("/api/activities", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(activity)
+            }
+        );
 
-    if (!response.ok) {
-        showMessage("Aktiviteten kunne ikke gemmes.", true);
-        return;
+        if (!response.ok) {
+            showMessage("Aktiviteten kunne ikke gemmes.", true);
+            return;
+        }
+
+        showMessage("Aktiviteten er gemt.");
+        form.reset();
+        await loadActivities();
     }
-
-    showMessage("Aktiviteten er gemt.");
-    form.reset();
-    await loadActivities();
-});
+);
 
 closeDialog.addEventListener("click", () => {
     editDialog.close();
 });
 
 editForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+        event.preventDefault();
 
-    const data = new FormData(editForm);
+        const data = new FormData(editForm);
 
-    const updatedActivity = {
-        name: document.querySelector("#edit-name").value.trim(),
-        description: document.querySelector("#edit-description").value.trim(),
-        instructor: document.querySelector("#edit-instructor").value.trim(),
-        room: document.querySelector("#edit-room").value.trim(),
-        itemsToBring: document.querySelector("#edit-itemsToBring").value.trim(),
-        startTime: data.get("start"),
-        endTime: data.get("end"),
-        capacity: Number(document.querySelector("#edit-capacity").value),
-        festivalId: selectedActivity.festivalId
-    };
+        const updatedActivity = {
+            name: document.querySelector("#edit-name").value.trim(),
+            description: document.querySelector("#edit-description").value.trim(),
+            instructor: document.querySelector("#edit-instructor").value.trim(),
+            room: document.querySelector("#edit-room").value.trim(),
+            itemsToBring: document.querySelector("#edit-itemsToBring").value.trim(),
+            startTime: data.get("start"),
+            endTime: data.get("end"),
+            capacity: Number(document.querySelector("#edit-capacity").value),
+            festivalId: selectedActivity.festivalId
+        };
 
-    try {
-        const response = await fetch(`/api/activities/${selectedActivity.id}`, {
-            method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(updatedActivity)
-        });
+        try {
+            const response = await fetch(`/api/activities/${selectedActivity.id}`, {
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(updatedActivity)
+                }
+            );
 
-        if (!response.ok) {
+            if (!response.ok) {
+                showMessage("Aktiviteten kunne ikke opdateres.", true);
+                return;
+            }
+
+            editDialog.close();
+            selectedActivity = null;
+            showMessage("Aktiviteten er opdateret.");
+            await loadActivities();
+        } catch (error) {
+            console.error("Could not update activity:", error);
             showMessage("Aktiviteten kunne ikke opdateres.", true);
-            return;
         }
-
-        editDialog.close();
-        selectedActivity = null;
-        showMessage("Aktiviteten er opdateret.");
-        showMessage("Aktiviteten er opdateret.");
-        await loadActivities();
-    } catch (error) {
-        console.error("Could not update activity:", error);
-        showMessage("Aktiviteten kunne ikke opdateres.", true);
     }
-});
+);
 
 loadActivities();
 
