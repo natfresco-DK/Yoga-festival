@@ -8,10 +8,14 @@ import ek.dk.yogaFestival.model.RegistrationStatus;
 import ek.dk.yogaFestival.repository.ActivityRegistrationRepo;
 import ek.dk.yogaFestival.repository.ActivityRepo;
 import ek.dk.yogaFestival.repository.FestivalRegistrationRepo;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ActivityRegistrationService {
@@ -26,6 +30,7 @@ public class ActivityRegistrationService {
         this.activityRegistrationRepo = activityRegistrationRepo;
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<ActivityRegistration> register(ActivityRegistrationRequest request) {
         validate(request);
 
@@ -35,18 +40,34 @@ public class ActivityRegistrationService {
                         + request.festivalRegistrationId() + " does not exist"));
         List<ActivityRegistration> registrations = new ArrayList<>();
 
-        for (Long activityId : request.activityIds()) {
-            Activity activity = activityRepo.findById(activityId)
+        for (Long activityId : request.activityIds().stream().sorted().toList()) {
+            Activity activity = activityRepo.findByIdForUpdate(activityId)
                     .orElseThrow(() -> new IllegalArgumentException("Activity with id " + activityId + " does not exist"));
 
             if (!activity.getFestival().getId().equals(festivalRegistration.getFestival().getId())) {
                 throw new IllegalArgumentException("Activity " + activityId + " does not belong to the registered festival");
             }
 
-            if (activityRegistrationRepo.existsByFestivalRegistrationIdAndActivityIdAndStatus(festivalRegistration.getId(), activityId,
-                    RegistrationStatus.CONFIRMED)) {
-                continue;
+            if (activityRegistrationRepo.existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+                    festivalRegistration.getParticipant().getId(),
+                    activityId,
+                    RegistrationStatus.CONFIRMED
+            )) {
+                throw new IllegalArgumentException(
+                        "Participant is already registered for activity " + activityId
+                );
             }
+
+            long confirmedRegistrations = activityRegistrationRepo.countByActivityIdAndStatus(
+                    activityId,
+                    RegistrationStatus.CONFIRMED
+            );
+            if (confirmedRegistrations >= activity.getCapacity()) {
+                throw new IllegalArgumentException(
+                        "Activity " + activityId + " is full"
+                );
+            }
+
             registrations.add(activityRegistrationRepo.save(new ActivityRegistration(festivalRegistration, activity)));
         }
         return registrations;
@@ -63,6 +84,10 @@ public class ActivityRegistrationService {
         }
         if (request.activityIds() == null || request.activityIds().isEmpty()) {
             throw new IllegalArgumentException("At least one activity must be selected");
+        }
+        Set<Long> uniqueActivityIds = new HashSet<>(request.activityIds());
+        if (uniqueActivityIds.size() != request.activityIds().size()) {
+            throw new IllegalArgumentException("Duplicate activity IDs are not allowed");
         }
     }
 }

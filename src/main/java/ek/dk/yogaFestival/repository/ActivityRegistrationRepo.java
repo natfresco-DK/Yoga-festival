@@ -5,8 +5,8 @@ import ek.dk.yogaFestival.model.RegistrationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ActivityRegistrationRepo extends JpaRepository<ActivityRegistration, Long> {
-    boolean existsByFestivalRegistrationIdAndActivityIdAndStatus(
-            Long festivalRegistrationId,
+    boolean existsByFestivalRegistration_Participant_IdAndActivity_IdAndStatus(
+            Long participantId,
             Long activityId,
             RegistrationStatus status
     );

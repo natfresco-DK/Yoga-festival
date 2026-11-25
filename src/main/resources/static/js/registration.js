@@ -11,10 +11,67 @@ function showMessage(text, isError = false) {
     message.hidden = false;
 }
 
+function getActivityName(activityId) {
+    return activities.find(activity => String(activity.id) === activityId)?.name
+        ?? "den valgte aktivitet";
+}
+
+function getUserErrorMessage(errorResponse, fallback) {
+    const backendMessage = errorResponse?.message;
+
+    if (errorResponse?.errors?.length) {
+        const validationMessages = errorResponse.errors.map(error => {
+            if (error === "Name is required") return "Indtast deltagerens navn.";
+            if (error === "Email is required") return "Indtast en e-mailadresse.";
+            if (error === "Email must be valid") return "Indtast en gyldig e-mailadresse.";
+            if (error === "Festival ID is required") return "Vælg en festival.";
+            if (error === "At least one activity must be selected") {
+                return "Vælg mindst én aktivitet.";
+            }
+            return null;
+        }).filter(Boolean);
+
+        if (validationMessages.length) {
+            return validationMessages.join(" ");
+        }
+    }
+
+    if (backendMessage === "Invalid input") {
+        return "Kontrollér oplysningerne, og prøv igen.";
+    }
+
+    let match = backendMessage?.match(/^Activity (\d+) is full$/);
+    if (match) {
+        return `${getActivityName(match[1])} er desværre fuld. Vælg en anden aktivitet.`;
+    }
+
+    match = backendMessage?.match(/^Participant is already registered for activity (\d+)$/);
+    if (match) {
+        return `Deltageren er allerede tilmeldt ${getActivityName(match[1])}.`;
+    }
+
+    if (backendMessage === "Duplicate activity IDs are not allowed") {
+        return "Den samme aktivitet er valgt flere gange. Opdatér valget, og prøv igen.";
+    }
+    if (backendMessage === "At least one activity must be selected") {
+        return "Vælg mindst én aktivitet.";
+    }
+
+    return fallback;
+}
+
+async function readErrorResponse(response, fallback) {
+    try {
+        return getUserErrorMessage(await response.json(), fallback);
+    } catch {
+        return fallback;
+    }
+}
+
 async function loadFestivals() {
     const response = await fetch("/api/festivals");
     if (!response.ok) {
-        throw new Error("Could not load festivals");
+        throw new Error("Festivalerne kunne ikke indlæses. Prøv igen senere.");
     }
 
     const festivals = await response.json();
@@ -37,7 +94,7 @@ async function loadActivities() {
 
     const response = await fetch("/api/activities");
     if (!response.ok) {
-        throw new Error("Could not load activities");
+        throw new Error("Aktiviteterne kunne ikke indlæses. Prøv igen senere.");
     }
 
     const allActivities = await response.json();
@@ -73,7 +130,10 @@ function renderActivityOptions() {
 }
 
 festivalSelect.addEventListener("change", () => {
-    loadActivities().catch(error => showMessage(error.message, true));
+    loadActivities().catch(error => {
+        console.error("Could not load activities:", error);
+        showMessage(error.message || "Aktiviteterne kunne ikke indlæses.", true);
+    });
 });
 
 form.addEventListener("submit", async event => {
@@ -102,8 +162,11 @@ form.addEventListener("submit", async event => {
         });
 
         if (!participantResponse.ok) {
-            const error = await participantResponse.json().catch(() => null);
-            throw new Error(error?.message ?? "Participant could not be registered");
+            showMessage(await readErrorResponse(
+                participantResponse,
+                "Deltageren kunne ikke registreres. Kontrollér oplysningerne, og prøv igen."
+            ), true);
+            return;
         }
 
         const responseText = await participantResponse.text();
@@ -124,15 +187,23 @@ form.addEventListener("submit", async event => {
         });
 
         if (!activityResponse.ok) {
-            throw new Error("Activity registrations could not be saved");
+            showMessage(await readErrorResponse(
+                activityResponse,
+                "Aktivitetstilmeldingen kunne ikke gennemføres. Prøv igen."
+            ), true);
+            return;
         }
 
         showMessage("Deltageren er registreret og tilmeldt valgte aktiviteter.");
         form.reset();
         activityOptions.replaceChildren("Vælg en festival for at se aktiviteter.");
     } catch (error) {
-        showMessage(error.message, true);
+        console.error("Could not complete registration:", error);
+        showMessage("Der opstod en teknisk fejl. Kontrollér forbindelsen, og prøv igen.", true);
     }
 });
 
-loadFestivals().catch(error => showMessage(error.message, true));
+loadFestivals().catch(error => {
+    console.error("Could not load festivals:", error);
+    showMessage(error.message || "Festivalerne kunne ikke indlæses.", true);
+});

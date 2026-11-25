@@ -38,8 +38,11 @@ public class ParticipantRegistrationService {
                                 email,
                                 request.phoneNumber() == null || request.phoneNumber().isBlank() ? null : request.phoneNumber().trim())
                 ));
-        FestivalRegistration registration = new FestivalRegistration(participant, festival);
-        return festivalRegistrationRepo.save(registration);
+        return festivalRegistrationRepo
+                .findByParticipant_IdAndFestival_Id(participant.getId(), festival.getId())
+                .orElseGet(() -> festivalRegistrationRepo.save(
+                        new FestivalRegistration(participant, festival)
+                ));
     }
 
     private void validate(ParticipantRegistrationRequest request) {
