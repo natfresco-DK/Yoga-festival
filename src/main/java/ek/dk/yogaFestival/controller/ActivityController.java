@@ -37,7 +37,8 @@ public class ActivityController {
                         activity.getEndTime(),
                         activity.getCapacity(),
                         activity.getItemsToBring(),
-                        activity.getFestival().getId()))
+                        activity.getFestival().getId(),
+                        activityService.getAvailablePlaces(activity)))
                 .toList();
     }
 
