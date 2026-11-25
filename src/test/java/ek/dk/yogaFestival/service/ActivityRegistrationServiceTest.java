@@ -142,6 +142,6 @@ class ActivityRegistrationServiceTest {
         when(activity.getFestival()).thenReturn(festival);
         when(festivalRegistrationRepo.findById(festivalRegistrationId))
                 .thenReturn(Optional.of(festivalRegistration));
-        when(activityRepo.findById(activityId)).thenReturn(Optional.of(activity));
+        when(activityRepo.findByIdForUpdate(activityId)).thenReturn(Optional.of(activity));
     }
 }
