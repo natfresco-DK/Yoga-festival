@@ -82,6 +82,23 @@ class ActivityServiceTest {
     }
 
     @Test
+    void shouldCalculateAvailablePlacesFromConfirmedRegistrations() {
+        Activity activity = new Activity();
+        activity.setId(10L);
+        activity.setCapacity(3);
+        when(activityRegistrationRepo.countByActivityIdAndStatus(
+                10L, RegistrationStatus.CONFIRMED
+        )).thenReturn(0L, 1L, 3L);
+
+        assertEquals(3, activityService.getAvailablePlaces(activity));
+        assertEquals(2, activityService.getAvailablePlaces(activity));
+        assertEquals(0, activityService.getAvailablePlaces(activity));
+        verify(activityRegistrationRepo, times(3)).countByActivityIdAndStatus(
+                10L, RegistrationStatus.CONFIRMED
+        );
+    }
+
+    @Test
     void shouldUpdateExistingActivityAndPreserveRelations() {
         Festival festival = new Festival("Yoga Festival", 2026);
         Activity existing = new Activity(
