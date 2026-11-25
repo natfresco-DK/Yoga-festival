@@ -1,5 +1,6 @@
 package ek.dk.yogaFestival.service;
 
+import ek.dk.yogaFestival.dto.ActivityParticipantResponse;
 import ek.dk.yogaFestival.dto.ActivityRegistrationRequest;
 import ek.dk.yogaFestival.model.Activity;
 import ek.dk.yogaFestival.model.ActivityRegistration;
@@ -71,6 +72,27 @@ public class ActivityRegistrationService {
             registrations.add(activityRegistrationRepo.save(new ActivityRegistration(festivalRegistration, activity)));
         }
         return registrations;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActivityParticipantResponse> getConfirmedParticipants(Long activityId) {
+        if (!activityRepo.existsById(activityId)) {
+            throw new IllegalArgumentException("Activity with id " + activityId + " does not exist");
+        }
+
+        return activityRegistrationRepo
+                .findAllByActivity_IdAndStatusOrderByFestivalRegistration_Participant_NameAsc(
+                        activityId,
+                        RegistrationStatus.CONFIRMED
+                )
+                .stream().map(registration -> {
+                    var participant = registration.getFestivalRegistration().getParticipant();
+                    return new ActivityParticipantResponse(
+                            participant.getName(),
+                            participant.getEmail(),
+                            participant.getPhoneNumber()
+                    );
+                }).toList();
     }
 
 

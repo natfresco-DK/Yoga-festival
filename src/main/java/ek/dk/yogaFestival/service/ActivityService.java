@@ -27,6 +27,13 @@ public class ActivityService {
         return activityRepo.findAll();
     }
 
+    public long getConfirmedRegistrationCount(Long activityId) {
+        return activityRegistrationRepo.countByActivityIdAndStatus(
+                activityId,
+                RegistrationStatus.CONFIRMED
+        );
+    }
+
     public Activity saveActivity(ActivityRequest request) {
         validateActivityRequest(request);
 
