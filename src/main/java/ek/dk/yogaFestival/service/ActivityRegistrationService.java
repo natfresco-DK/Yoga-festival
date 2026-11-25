@@ -8,6 +8,8 @@ import ek.dk.yogaFestival.model.RegistrationStatus;
 import ek.dk.yogaFestival.repository.ActivityRegistrationRepo;
 import ek.dk.yogaFestival.repository.ActivityRepo;
 import ek.dk.yogaFestival.repository.FestivalRegistrationRepo;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ public class ActivityRegistrationService {
         this.activityRegistrationRepo = activityRegistrationRepo;
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<ActivityRegistration> register(ActivityRegistrationRequest request) {
         validate(request);
 
@@ -37,8 +40,8 @@ public class ActivityRegistrationService {
                         + request.festivalRegistrationId() + " does not exist"));
         List<ActivityRegistration> registrations = new ArrayList<>();
 
-        for (Long activityId : request.activityIds()) {
-            Activity activity = activityRepo.findById(activityId)
+        for (Long activityId : request.activityIds().stream().sorted().toList()) {
+            Activity activity = activityRepo.findByIdForUpdate(activityId)
                     .orElseThrow(() -> new IllegalArgumentException("Activity with id " + activityId + " does not exist"));
 
             if (!activity.getFestival().getId().equals(festivalRegistration.getFestival().getId())) {
