@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Arrangøroversigt over festivalens aktiviteter og tilmeldte deltagere.">
+    <title>Arrangøroversigt | Yogafestivalen</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/organizer.js}" defer></script>
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-content">
+        <a th:href="@{/activities}" class="brand">Yogafestivalen</a>
+    </div>
+</header>
+
+<main class="container">
+    <div class="page-heading">
+        <p class="eyebrow">Arrangør</p>
+        <h1>Festivaloversigt</h1>
+        <p>Se aktiviteternes kapacitet og tilmeldinger, og vælg en aktivitet for at se deltagerlisten.</p>
+    </div>
+
+    <p class="message error" id="organizer-message" role="status" aria-live="polite" hidden></p>
+
+    <div class="organizer-layout">
+        <section class="panel" aria-labelledby="activity-heading">
+            <div class="panel-heading">
+                <h2 id="activity-heading">Aktiviteter</h2>
+                <p>Oversigten opdateres automatisk hvert 15. sekund.</p>
+            </div>
+            <div id="activity-list" class="organizer-activity-list" aria-live="polite">
+                <p>Indlæser aktiviteter …</p>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="participants-heading">
+            <div class="panel-heading">
+                <h2 id="participants-heading">Deltagere</h2>
+                <p id="selected-activity-label">Vælg en aktivitet for at se dens deltagere.</p>
+            </div>
+            <div id="participant-list" class="participant-list" aria-live="polite">
+                <p>Ingen aktivitet valgt.</p>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

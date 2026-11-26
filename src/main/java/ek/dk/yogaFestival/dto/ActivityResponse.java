@@ -13,6 +13,7 @@ public record ActivityResponse(
         Integer capacity,
         String itemsToBring,
         Long festivalId,
+        Long confirmedRegistrations,
         Integer availablePlaces
 ) {
 }
