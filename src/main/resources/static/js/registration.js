@@ -123,10 +123,23 @@ function renderActivityOptions() {
 
         const text = document.createElement("span");
         text.textContent = `${activity.name} – ${activity.room ?? "Lokale ikke angivet"}`;
+        text.className = "activity-option-details";
+
+        const details = document.createElement("small");
+        details.textContent = `${formatDateTime(activity.startTime)} – ${formatDateTime(activity.endTime)} · ${activity.availablePlaces} ledige pladser`;
+
+        text.append(name, details);
 
         label.append(checkbox, text);
         activityOptions.append(label);
     }
+}
+
+function formatDateTime(dateTime) {
+    return new Intl.DateTimeFormat("da-DK", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    }).format(new Date(dateTime));
 }
 
 festivalSelect.addEventListener("change", () => {
@@ -194,9 +207,19 @@ form.addEventListener("submit", async event => {
             return;
         }
 
-        showMessage("Deltageren er registreret og tilmeldt valgte aktiviteter.");
+        const selectedFestivalId = festivalSelect.value;
         form.reset();
-        activityOptions.replaceChildren("Vælg en festival for at se aktiviteter.");
+        festivalSelect.value = selectedFestivalId;
+        try {
+            await loadActivities();
+            showMessage("Deltageren er registreret og tilmeldt valgte aktiviteter.");
+        } catch (error) {
+            console.error("Could not refresh activity availability:", error);
+            showMessage(
+                "Tilmeldingen blev gennemført, men ledige pladser kunne ikke opdateres. Genindlæs aktiviteterne for at se den aktuelle status.",
+                true
+            );
+        }
     } catch (error) {
         console.error("Could not complete registration:", error);
         showMessage("Der opstod en teknisk fejl. Kontrollér forbindelsen, og prøv igen.", true);

@@ -358,6 +358,17 @@ h1 {
     margin-top: 4px;
 }
 
+.activity-option-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.activity-option-details small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
 .organizer-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
