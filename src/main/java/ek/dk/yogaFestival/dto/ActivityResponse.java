@@ -12,6 +12,7 @@ public record ActivityResponse(
         LocalDateTime endTime,
         Integer capacity,
         String itemsToBring,
-        Long festivalId
+        Long festivalId,
+        Integer availablePlaces
 ) {
 }
